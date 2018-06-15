@@ -1,0 +1,25 @@
+[package]
+name = "cute-log"
+version = "1.0.0"
+authors = ["Douman <douman@gmx.se>"]
+keywords = ["log"]
+description = "Simple and cute logger for log crate"
+readme = "README.md"
+repository = "https://github.com/DoumanAsh/cute-log"
+license = "Apache-2.0"
+include = [
+    "**/*.rs",
+    "Cargo.toml",
+    "README.md"
+]
+
+[dependencies]
+log = "0"
+
+[dependencies.chrono]
+version = "0.4"
+optional = true
+
+[features]
+default = ["timestamp"]
+timestamp = ["chrono"]
