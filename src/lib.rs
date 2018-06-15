@@ -72,8 +72,9 @@ impl log::Log for Logger {
     }
 }
 
-///Sets global logger
+///Sets global logger with log level Trace
 pub fn init() -> Result<(), log::SetLoggerError> {
     static INSTANCE: Logger = Logger;
+    log::set_max_level(log::LevelFilter::Trace);
     log::set_logger(&INSTANCE)
 }
