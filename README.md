@@ -1,7 +1,7 @@
 # cute-log
 
 [![Build Status](https://travis-ci.org/DoumanAsh/cute-log.svg?branch=master)](https://travis-ci.org/DoumanAsh/cute-log)
-[![Crates.io](https://img.shields.io/crates/v/cortex-m-log.svg)](https://crates.io/crates/cortex-m-log)
+[![Crates.io](https://img.shields.io/crates/v/cute-log.svg)](https://crates.io/crates/cute-log)
 [![Documentation](https://docs.rs/cute-log/badge.svg)](https://docs.rs/crate/cute-log/)
 
 Simple and cute log
