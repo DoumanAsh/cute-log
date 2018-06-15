@@ -1,6 +1,6 @@
 [package]
 name = "cute-log"
-version = "1.1.0"
+version = "1.1.1"
 authors = ["Douman <douman@gmx.se>"]
 keywords = ["log"]
 description = "Simple and cute logger for log crate"
@@ -13,8 +13,9 @@ include = [
     "README.md"
 ]
 
-[dependencies]
-log = "0"
+[dependencies.log]
+version = "0"
+default-features = false
 
 [dependencies.chrono]
 version = "0.4"

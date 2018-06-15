@@ -32,7 +32,7 @@ mod io;
 ///Simple Logger implementation
 ///
 ///It provides logger without filtering with following format:
-///`<level> [<date and time>] <file>:<line> - <args>`
+///`<level> [<date and time>] - <args> at <file>:<line>`
 ///
 ///Timestamp can be turned off by disabling default features
 pub struct Logger;

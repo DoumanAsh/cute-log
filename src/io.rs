@@ -34,10 +34,13 @@ pub fn print(record: &log::Record) {
         let _ = write!(&mut buffer, "[{}] ", get_date());
     }
 
-    let _ = write!(&mut buffer, "{}:{} - {}\n",
+    let _ = buffer.set_color(ColorSpec::new().set_fg(Some(Color::Rgb(255, 255, 255))));
+    let _ = write!(&mut buffer, "- {}", record.args());
+    let _ = buffer.reset();
+
+    let _ = write!(&mut buffer, " at {}:{}\n",
                    record.file().unwrap_or("UNKNOWN"),
-                   record.line().unwrap_or(0),
-                   record.args());
+                   record.line().unwrap_or(0));
 
     let _ = writer.print(&buffer);
 }
@@ -46,19 +49,19 @@ pub fn print(record: &log::Record) {
 pub fn print(record: &log::Record) {
     #[cfg(feature="timestamp")]
     {
-        println!("{:<5} [{}] {}:{} - {}",
+        println!("{:<5} [{}] - {} at {}:{}",
                  record.level(),
                  get_date(),
-                 record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                 record.args());
+                 record.args(),
+                 record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0));
 
     }
 
     #[cfg(not(feature="timestamp"))]
     {
-        println!("{:<5} {}:{} - {}",
+        println!("{:<5} - {} at {}:{}",
                  record.level(),
-                 record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                 record.args());
+                 record.args(),
+                 record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0));
     }
 }
