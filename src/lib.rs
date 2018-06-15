@@ -60,21 +60,30 @@ impl Logger {
 }
 
 impl log::Log for Logger {
+    #[inline]
     fn enabled(&self, _: &log::Metadata) -> bool {
         true
     }
 
+    #[inline]
     fn log(&self, record: &log::Record) {
         Self::print(record);
     }
 
+    #[inline]
     fn flush(&self) {
     }
 }
 
+#[inline]
 ///Sets global logger with log level Trace
 pub fn init() -> Result<(), log::SetLoggerError> {
+    init_with_max_level(log::LevelFilter::Trace)
+}
+
+///Sets logger with max log level.
+pub fn init_with_max_level(level: log::LevelFilter) -> Result<(), log::SetLoggerError> {
     static INSTANCE: Logger = Logger;
-    log::set_max_level(log::LevelFilter::Trace);
+    log::set_max_level(level);
     log::set_logger(&INSTANCE)
 }
