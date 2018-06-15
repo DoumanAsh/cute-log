@@ -21,4 +21,12 @@ fn main() {
 
 ## Available features
 
-- `timestamp` - Enables timestamp in logs.
+- `timestamp` - Enables timestamp in logs. Enabled by default.
+- `color` - Enables coloring of log level. Enabled by default.
+
+## Log level control
+
+The logger is made without any builtin filters.
+
+You can either control logs through compile time features of `log` crate.
+Or use `set_max_level`.

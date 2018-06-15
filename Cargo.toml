@@ -20,6 +20,11 @@ log = "0"
 version = "0.4"
 optional = true
 
+[dependencies.termcolor]
+version = "0.3"
+optional = true
+
 [features]
-default = ["timestamp"]
+default = ["timestamp", "color"]
 timestamp = ["chrono"]
+color = ["termcolor"]

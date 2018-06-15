@@ -3,6 +3,7 @@
 //!## Feautres
 //!
 //!- `timestamp` - Enables timestamps in logs by means of `chrono`. Enabled by default
+//!- `color` - Enables coloring of log level. Enabled by default.
 //!
 //!## Usage
 //!
@@ -16,12 +17,17 @@
 //!    info!("it works!");
 //!}
 //!```
+//!
+//!## Log level control
+//!
+//!The logger is made without any builtin filters.
+//!
+//!You can either control logs through compile time features of `log` crate.
+//!Or use `set_max_level`.
 
 extern crate log;
-#[cfg(feature="timestamp")]
-extern crate chrono;
 
-use std::fmt;
+mod io;
 
 ///Simple Logger implementation
 ///
@@ -32,30 +38,14 @@ use std::fmt;
 pub struct Logger;
 
 impl Logger {
-    #[cfg(feature="timestamp")]
-    fn get_date() -> impl fmt::Display {
-        chrono::offset::Local::now().format("%F %H:%M:%S%.3f %z")
-    }
-
     ///Logger printer.
     pub fn print(record: &log::Record) {
-        #[cfg(feature="timestamp")]
-        {
-            println!("{:<5} [{}] {}:{} - {}",
-                     record.level(),
-                     Self::get_date(),
-                     record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                     record.args());
+        io::print(record);
+    }
 
-        }
-
-        #[cfg(not(feature="timestamp"))]
-        {
-            println!("{:<5} {}:{} - {}",
-                     record.level(),
-                     record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                     record.args());
-        }
+    ///Sets `log` max level
+    pub fn set_max_level(level: log::LevelFilter) {
+        log::set_max_level(level);
     }
 }
 
