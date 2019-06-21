@@ -19,7 +19,9 @@
 //!The logger is made without any builtin filters.
 //!
 //!You can either control logs through compile time features of `log` crate.
-//!Or use `set_max_level`.
+//!Or use `set_max_level` from the `log` crate.
+
+pub extern crate log;
 
 mod io;
 
