@@ -8,13 +8,9 @@
 //!## Usage
 //!
 //!```rust
-//!#[macro_use]
-//!extern crate log;
-//!extern crate cute_log;
-//!
 //!fn main() {
 //!    cute_log::init();
-//!    info!("it works!");
+//!    log::info!("it works!");
 //!}
 //!```
 //!
@@ -24,8 +20,6 @@
 //!
 //!You can either control logs through compile time features of `log` crate.
 //!Or use `set_max_level`.
-
-extern crate log;
 
 mod io;
 
@@ -38,11 +32,13 @@ mod io;
 pub struct Logger;
 
 impl Logger {
+    #[inline]
     ///Logger printer.
     pub fn print(record: &log::Record) {
         io::print(record);
     }
 
+    #[inline]
     ///Sets `log` max level
     pub fn set_max_level(level: log::LevelFilter) {
         log::set_max_level(level);
@@ -50,7 +46,7 @@ impl Logger {
 }
 
 impl log::Log for Logger {
-    #[inline]
+    #[inline(always)]
     fn enabled(&self, _: &log::Metadata) -> bool {
         true
     }
@@ -60,8 +56,21 @@ impl log::Log for Logger {
         Self::print(record);
     }
 
-    #[inline]
+    #[inline(always)]
     fn flush(&self) {
+    }
+}
+
+#[inline(always)]
+///Sets global logger as [init](fn.init.html) only in debug mode.
+pub fn debug_init() -> Result<(), log::SetLoggerError> {
+    #[cfg(debug_assertions)]
+    {
+        init()
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        Ok(())
     }
 }
 
@@ -69,6 +78,19 @@ impl log::Log for Logger {
 ///Sets global logger with log level Trace
 pub fn init() -> Result<(), log::SetLoggerError> {
     init_with_max_level(log::LevelFilter::Trace)
+}
+
+#[inline(always)]
+///Sets global logger as [init_with_max_level](fn.init_with_max_level.html) only in debug mode.
+pub fn debug_init_with_max_level(_level: log::LevelFilter) -> Result<(), log::SetLoggerError> {
+    #[cfg(debug_assertions)]
+    {
+        init_with_max_level(_level)
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        Ok(())
+    }
 }
 
 ///Sets logger with max log level.
