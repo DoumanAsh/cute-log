@@ -43,6 +43,12 @@ impl Logger {
     pub fn set_max_level(level: log::LevelFilter) {
         log::set_max_level(level);
     }
+
+    #[inline]
+    ///Initialize self as `log` global logger.
+    pub fn set_logger(&'static self) -> Result<(), log::SetLoggerError> {
+        log::set_logger(self)
+    }
 }
 
 impl log::Log for Logger {
