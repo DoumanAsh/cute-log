@@ -22,7 +22,7 @@ fn main() {
 ## Available features
 
 - `timestamp` - Enables timestamp in logs. Enabled by default.
-- `color` - Enables coloring of log level. Enabled by default.
+- `color` - Enables coloring of log level. Enabled by default, but not for `wasm32` target
 
 ## Log level control
 

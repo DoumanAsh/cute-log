@@ -1,17 +1,12 @@
-#[cfg(feature="color")]
-extern crate termcolor;
-extern crate log;
-
-
 #[cfg(feature="timestamp")]
 fn get_date() -> impl ::std::fmt::Display {
-    extern crate chrono;
     chrono::offset::Local::now().format("%F %H:%M:%S%.3f %z")
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[cfg(feature="color")]
 pub fn print(record: &log::Record) {
-    use self::termcolor::{WriteColor, BufferWriter, ColorChoice, ColorSpec, Color};
+    use termcolor::{WriteColor, BufferWriter, ColorChoice, ColorSpec, Color};
     use std::io::Write;
 
     let writer = BufferWriter::stdout(ColorChoice::Auto);
@@ -45,6 +40,7 @@ pub fn print(record: &log::Record) {
     let _ = writer.print(&buffer);
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 #[cfg(not(feature="color"))]
 pub fn print(record: &log::Record) {
     #[cfg(feature="timestamp")]
@@ -63,5 +59,24 @@ pub fn print(record: &log::Record) {
                  record.level(),
                  record.args(),
                  record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0));
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn print(record: &log::Record) {
+    use web_sys::console;
+
+    #[cfg(feature="timestamp")]
+    let string = format!("{:<5} [{}] - {} at {}:{}", record.level(), get_date(), record.args(), record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0));
+
+    #[cfg(not(feature="timestamp"))]
+    let string = format!("{:<5} - {} at {}:{}", record.level(), record.args(), record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0));
+
+    match record.level() {
+        log::Level::Trace => console::debug_1(&string.into()),
+        log::Level::Debug => console::log_1(&string.into()),
+        log::Level::Info => console::info_1(&string.into()),
+        log::Level::Warn => console::warn_1(&string.into()),
+        log::Level::Error => console::error_1(&string.into()),
     }
 }
