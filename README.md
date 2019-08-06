@@ -9,13 +9,9 @@ Simple and cute log
 ## Usage
 
 ```rust
-#[macro_use]
-extern crate log;
-extern crate cute_log;
-
 fn main() {
     cute_log::init();
-    info!("it works!");
+    log::info!("it works!");
 }
 ```
 
@@ -30,3 +26,9 @@ The logger is made without any builtin filters.
 
 You can either control logs through compile time features of `log` crate.
 Or use `set_max_level`.
+
+## Supported platforms
+
+- Android - via NDK logging library, therefore it must be linked.
+- Wasm - via web console API.
+- Any other platform with `std` available.

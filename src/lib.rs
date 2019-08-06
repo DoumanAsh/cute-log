@@ -20,6 +20,12 @@
 //!
 //!You can either control logs through compile time features of `log` crate.
 //!Or use `set_max_level` from the `log` crate.
+//!
+//!## Supported platforms
+//!
+//!- Android - via NDK logging library, therefore it must be linked.
+//!- Wasm - via web console API.
+//!- Any other platform with `std` available.
 
 pub extern crate log;
 
