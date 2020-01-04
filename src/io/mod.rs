@@ -1,6 +1,15 @@
+pub struct TimeDate(time::PrimitiveDateTime);
+
+impl core::fmt::Display for TimeDate {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        write!(f, "{}-{:02}-{:02} {:02}:{:02}:{:02}", self.0.year(), self.0.month(), self.0.day(), self.0.hour(), self.0.minute(), self.0.second())
+    }
+}
+
 #[cfg(feature="timestamp")]
-fn get_date() -> impl ::std::fmt::Display {
-    chrono::offset::Local::now().format("%F %H:%M:%S%.3f %z")
+#[inline]
+fn get_date() -> impl core::fmt::Display {
+    TimeDate(time::PrimitiveDateTime::now())
 }
 
 #[cfg(target_arch = "wasm32")]
