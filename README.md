@@ -10,7 +10,9 @@ Simple and cute log
 
 ```rust
 fn main() {
-    cute_log::init();
+    const LOGGER: cute_log::Logger = cute_log::Logger::new();
+    LOGGER.set_max_level(cute_log::log::LevelFilter::Info);
+    let _ = LOGGER.set_logger();
     log::info!("it works!");
 }
 ```
@@ -18,7 +20,6 @@ fn main() {
 ## Available features
 
 - `timestamp` - Enables timestamp in logs. Enabled by default.
-- `color` - Enables coloring of log level. Enabled by default, but not for `wasm32` target
 
 ## Log level control
 

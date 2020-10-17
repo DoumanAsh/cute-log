@@ -1,11 +1,10 @@
-extern crate log;
-extern crate cute_log;
-
 #[test]
 fn it_works() {
-    cute_log::Logger::print(&log::Record::builder().args(format_args!("it works!")).level(log::Level::Error).build());
-    cute_log::Logger::print(&log::Record::builder().args(format_args!("it works!")).level(log::Level::Warn).build());
-    cute_log::Logger::print(&log::Record::builder().args(format_args!("it works!")).build());
-    cute_log::Logger::print(&log::Record::builder().args(format_args!("it works!")).level(log::Level::Debug).build());
-    cute_log::Logger::print(&log::Record::builder().args(format_args!("it works!")).level(log::Level::Trace).build());
+    const LOGGER: cute_log::Logger = cute_log::Logger::new();
+    LOGGER.set_max_level(cute_log::log::LevelFilter::Info);
+    let _ = LOGGER.set_logger();
+
+    log::info!("it works!");
+
+    log::debug!("it doesn't work!");
 }
