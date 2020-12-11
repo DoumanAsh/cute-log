@@ -73,12 +73,13 @@ impl Writer {
         //us small chunks aways, unless user just went ahead and attempted to print large static
         //string
         while text.len() > BUFFER_CAPACITY {
+            let write_len = BUFFER_CAPACITY - self.len;
             unsafe {
-                ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), BUFFER_CAPACITY);
+                ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), write_len);
             }
-            self.len += BUFFER_CAPACITY;
+            self.len += write_len;
             self.flush();
-            text = &text[BUFFER_CAPACITY..];
+            text = &text[write_len..];
         }
 
         if self.len + text.len() >= BUFFER_CAPACITY {
