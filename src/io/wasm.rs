@@ -64,9 +64,19 @@ impl Console {
         self.len = 0;
     }
 
+    #[cold]
+    fn dump(&self, text: &str) {
+        (self.fun)(text);
+    }
+
     fn write_text(&mut self, text: &str) {
-        //Yeah, how about to not write so much actually?
-        debug_assert!(text.len() <= BUFFER_CAPACITY);
+        //This case is unlikely to happen as fmt machinery feeds
+        //us small chunks, but in this case we can just dump it all.
+        if text.len() > BUFFER_CAPACITY {
+            self.flush();
+            self.dump(text);
+            return;
+        }
 
         if self.len + text.len() >= BUFFER_CAPACITY {
             self.flush();

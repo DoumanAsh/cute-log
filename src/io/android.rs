@@ -1,4 +1,4 @@
-use core::{mem, ptr, cmp};
+use core::{mem, ptr};
 use core::fmt::{self, Write};
 
 #[allow(unused)]
@@ -17,6 +17,9 @@ enum LogPriority {
 }
 
 const TAG_MAX_LEN: usize = 23;
+//Re-check NDK sources, I think internally kernel limits to 4076, but
+//it includes some overhead of logcat machinery, hence 4000
+//Don't remember details
 const BUFFER_CAPACITY: usize = 4000;
 const DEFAULT_TAG: &[u8; 5] = b"Rust\0";
 
@@ -29,6 +32,7 @@ pub struct Writer {
     //Null character is not within limit
     tag: mem::MaybeUninit<[u8; TAG_MAX_LEN + 1]>,
     prio: LogPriority,
+    //Null character is not within limit
     buffer: mem::MaybeUninit<[u8; BUFFER_CAPACITY + 1]>,
     len: usize,
 }
@@ -63,19 +67,29 @@ impl Writer {
         self.len = 0;
     }
 
-    fn write_text(&mut self, text: &str) {
-        //Yeah, how about to not write so much actually?
-        debug_assert!(text.len() < BUFFER_CAPACITY);
+    fn write_text(&mut self, mut text: &str) {
+        //We'll dump it by parts, as android limits message size.
+        //But this case is unlikely to happen as fmt machinery feeds
+        //us small chunks aways, unless user just went ahead and attempted to print large static
+        //string
+        while text.len() > BUFFER_CAPACITY {
+            unsafe {
+                ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), BUFFER_CAPACITY);
+            }
+            self.len += BUFFER_CAPACITY;
+            self.flush();
+            text = &text[BUFFER_CAPACITY..];
+        }
 
         if self.len + text.len() >= BUFFER_CAPACITY {
             self.flush();
         }
 
-        let write_len = cmp::min(BUFFER_CAPACITY, text.len());
+        //At this point text.len() <= BUFFER_CAPACITY
         unsafe {
-            ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), write_len);
+            ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), text.len());
         }
-        self.len += write_len;
+        self.len += text.len();
     }
 }
 
