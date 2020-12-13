@@ -1,4 +1,4 @@
-use core::{mem, ptr};
+use core::{mem, ptr, cmp};
 use core::fmt::{self, Write};
 
 #[allow(unused)]
@@ -67,30 +67,46 @@ impl Writer {
         self.len = 0;
     }
 
+    fn copy_text<'a>(&mut self, text: &'a str) -> &'a str {
+        let write_len = cmp::min(BUFFER_CAPACITY.saturating_sub(self.len), text.len());
+        unsafe {
+            ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), write_len);
+        }
+        self.len += write_len;
+        &text[write_len..]
+    }
+
+    #[cold]
+    fn on_text_overflow<'a>(&mut self, mut text: &'a str) -> &'a str {
+        loop {
+            text = self.copy_text(text);
+            self.flush();
+
+            if text.len() <= BUFFER_CAPACITY {
+                break text
+            }
+        }
+    }
+
     fn write_text(&mut self, mut text: &str) {
         //We'll dump it by parts, as android limits message size.
         //But this case is unlikely to happen as fmt machinery feeds
         //us small chunks aways, unless user just went ahead and attempted to print large static
         //string
-        while text.len() > BUFFER_CAPACITY {
-            let write_len = BUFFER_CAPACITY - self.len;
-            unsafe {
-                ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), write_len);
-            }
-            self.len += write_len;
-            self.flush();
-            text = &text[write_len..];
-        }
-
-        if self.len + text.len() >= BUFFER_CAPACITY {
-            self.flush();
+        if text.len() > BUFFER_CAPACITY {
+            text = self.on_text_overflow(text);
         }
 
         //At this point text.len() <= BUFFER_CAPACITY
-        unsafe {
-            ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), text.len());
+        loop {
+            text = self.copy_text(text);
+
+            if text.len() == 0 {
+                break;
+            } else {
+                self.flush();
+            }
         }
-        self.len += text.len();
     }
 }
 
@@ -102,6 +118,14 @@ impl fmt::Write for Writer {
         Ok(())
     }
 }
+
+impl Drop for Writer {
+    #[inline]
+    fn drop(&mut self) {
+        self.last_flush();
+    }
+}
+
 impl crate::Logger {
     #[inline]
     ///Logger printer.
@@ -134,7 +158,5 @@ impl crate::Logger {
         let mut writer = Writer::new(tag, prio);
 
         let _ = write!(writer, "{{{}:{}}} - {}", record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0), record.args());
-
-        writer.last_flush();
     }
 }

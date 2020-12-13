@@ -64,29 +64,39 @@ impl Console {
         self.len = 0;
     }
 
-    #[cold]
-    fn dump(&self, text: &str) {
-        (self.fun)(text);
-    }
-
-    fn write_text(&mut self, text: &str) {
-        //This case is unlikely to happen as fmt machinery feeds
-        //us small chunks, but in this case we can just dump it all.
-        if text.len() > BUFFER_CAPACITY {
-            self.flush();
-            self.dump(text);
-            return;
-        }
-
-        if self.len + text.len() >= BUFFER_CAPACITY {
-            self.flush();
-        }
-
-        let write_len = cmp::min(BUFFER_CAPACITY, text.len());
+    fn copy_text<'a>(&mut self, text: &'a str) -> &'a str {
+        let write_len = cmp::min(BUFFER_CAPACITY.saturating_sub(self.len), text.len());
         unsafe {
             ptr::copy_nonoverlapping(text.as_ptr(), self.as_mut_ptr().add(self.len), write_len);
         }
         self.len += write_len;
+        &text[write_len..]
+    }
+
+    #[cold]
+    fn on_text_overflow(&mut self, mut text: &str) {
+        text = self.copy_text(text);
+        self.flush();
+        (self.fun)(text)
+    }
+
+    fn write_text(&mut self, mut text: &str) {
+        //This case is unlikely to happen as fmt machinery feeds
+        //us small chunks, but in this case we can just dump it all.
+        if text.len() > BUFFER_CAPACITY {
+            return self.on_text_overflow(text);
+        }
+
+        //At this point text.len() <= BUFFER_CAPACITY
+        loop {
+            text = self.copy_text(text);
+
+            if text.len() == 0 {
+                break;
+            } else {
+                self.flush();
+            }
+        }
     }
 }
 
@@ -96,6 +106,13 @@ impl fmt::Write for Console {
         self.write_text(text);
 
         Ok(())
+    }
+}
+
+impl Drop for Console {
+    #[inline]
+    fn drop(&mut self) {
+        self.last_flush();
     }
 }
 
@@ -112,7 +129,5 @@ impl crate::Logger {
         };
 
         let _ = write!(console, "{:<5} {{{}:{}}} - {}", record.level(), record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0), record.args());
-
-        console.last_flush();
     }
 }
