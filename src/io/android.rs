@@ -67,6 +67,7 @@ impl Writer {
         self.len = 0;
     }
 
+    #[inline]
     fn copy_text<'a>(&mut self, text: &'a str) -> &'a str {
         let write_len = cmp::min(BUFFER_CAPACITY.saturating_sub(self.len), text.len());
         unsafe {
@@ -76,27 +77,7 @@ impl Writer {
         &text[write_len..]
     }
 
-    #[cold]
-    fn on_text_overflow<'a>(&mut self, mut text: &'a str) -> &'a str {
-        loop {
-            text = self.copy_text(text);
-            self.flush();
-
-            if text.len() <= BUFFER_CAPACITY {
-                break text
-            }
-        }
-    }
-
     fn write_text(&mut self, mut text: &str) {
-        //We'll dump it by parts, as android limits message size.
-        //But this case is unlikely to happen as fmt machinery feeds
-        //us small chunks aways, unless user just went ahead and attempted to print large static
-        //string
-        if text.len() > BUFFER_CAPACITY {
-            text = self.on_text_overflow(text);
-        }
-
         //At this point text.len() <= BUFFER_CAPACITY
         loop {
             text = self.copy_text(text);

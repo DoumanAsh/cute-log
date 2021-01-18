@@ -64,6 +64,7 @@ impl Console {
         self.len = 0;
     }
 
+    #[inline]
     fn copy_text<'a>(&mut self, text: &'a str) -> &'a str {
         let write_len = cmp::min(BUFFER_CAPACITY.saturating_sub(self.len), text.len());
         unsafe {
@@ -73,20 +74,7 @@ impl Console {
         &text[write_len..]
     }
 
-    #[cold]
-    fn on_text_overflow(&mut self, mut text: &str) {
-        text = self.copy_text(text);
-        self.flush();
-        (self.fun)(text)
-    }
-
     fn write_text(&mut self, mut text: &str) {
-        //This case is unlikely to happen as fmt machinery feeds
-        //us small chunks, but in this case we can just dump it all.
-        if text.len() > BUFFER_CAPACITY {
-            return self.on_text_overflow(text);
-        }
-
         //At this point text.len() <= BUFFER_CAPACITY
         loop {
             text = self.copy_text(text);
