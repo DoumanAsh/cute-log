@@ -14,9 +14,15 @@ fn get_date() -> impl core::fmt::Display {
 }
 
 impl crate::Logger {
+    #[inline(always)]
+    ///Prints to `stdout` as it is
+    pub fn print_fmt(args: core::fmt::Arguments<'_>) {
+        println!("{}", args);
+    }
+
     #[inline]
     ///Logger printer.
-    pub(crate) fn print(record: &log::Record) {
+    pub fn print(record: &log::Record) {
         #[cfg(feature="timestamp")]
         {
             println!("{:<5} [{}] {{{}:{}}} - {}",

@@ -105,9 +105,17 @@ impl Drop for Console {
 }
 
 impl crate::Logger {
+    #[inline(always)]
+    ///Prints plain text with as `Info`
+    pub fn print_fmt(args: core::fmt::Arguments<'_>) {
+        let mut console = Console::new(info);
+
+        let _ = write!(console, "{}", args);
+    }
+
     #[inline]
     ///Logger printer.
-    pub(crate) fn print(record: &log::Record) {
+    pub fn print(record: &log::Record) {
         let mut console = match record.level() {
             log::Level::Trace => Console::new(debug),
             log::Level::Debug => Console::new(debug),

@@ -108,9 +108,21 @@ impl Drop for Writer {
 }
 
 impl crate::Logger {
+    #[inline(always)]
+    ///Prints plain text with `INFO` priority
+    pub fn print_fmt(args: core::fmt::Arguments<'_>) {
+        let mut tag: mem::MaybeUninit<[u8; TAG_MAX_LEN+1]> = mem::MaybeUninit::uninit();
+        unsafe {
+            ptr::copy_nonoverlapping(DEFAULT_TAG.as_ptr(), tag.as_mut_ptr() as *mut u8, DEFAULT_TAG.len());
+        }
+
+        let mut writer = Writer::new(tag, LogPriority::INFO);
+        let _ = write!(writer, "{}", args);
+    }
+
     #[inline]
     ///Logger printer.
-    pub(crate) fn print(record: &log::Record) {
+    pub fn print(record: &log::Record) {
         let prio = match record.level() {
             log::Level::Warn => LogPriority::WARN,
             log::Level::Info => LogPriority::INFO,
