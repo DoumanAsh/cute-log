@@ -18,6 +18,9 @@ edition = "2018"
 version = "0"
 default-features = false
 
+[target.'cfg(target_os = "android")'.dependencies]
+androidy-log = "1"
+
 [target.'cfg(not(any(target_os = "android", target_arch = "wasm32")))'.dependencies.time]
 version = "0.2"
 default-features = false
