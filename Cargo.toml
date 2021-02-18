@@ -28,7 +28,7 @@ features = ["std"]
 optional = true
 
 [target.'cfg(any(target_arch = "wasm32"))'.dependencies]
-wasm-bindgen = "0.2"
+web-log = "1"
 
 [features]
 default = ["timestamp"]
