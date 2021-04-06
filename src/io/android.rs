@@ -22,7 +22,11 @@ impl crate::Logger {
         };
 
         let mut writer = match record.module_path() {
-            Some(module) => Writer::new(module, prio),
+            //Limit to root component, otherwise overflow is very much likely.
+            Some(module) => match module.find(':') {
+                Some(len) => Writer::new(&module[..len-1], prio),
+                None => Writer::new(module, prio),
+            },
             None => Writer::new_default(prio),
         };
 
