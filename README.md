@@ -1,6 +1,6 @@
 # cute-log
 
-[![Build Status](https://travis-ci.org/DoumanAsh/cute-log.svg?branch=master)](https://travis-ci.org/DoumanAsh/cute-log)
+[![Rust](https://github.com/DoumanAsh/cute-log/actions/workflows/rust.yml/badge.svg)](https://github.com/DoumanAsh/cute-log/actions/workflows/rust.yml)
 [![Crates.io](https://img.shields.io/crates/v/cute-log.svg)](https://crates.io/crates/cute-log)
 [![Documentation](https://docs.rs/cute-log/badge.svg)](https://docs.rs/crate/cute-log/)
 
@@ -20,6 +20,7 @@ fn main() {
 ## Available features
 
 - `timestamp` - Enables timestamp in logs. Enabled by default.
+- `std` - Enables use of `std` feature to provide `RUST_LOG` handling.
 
 ## Log level control
 

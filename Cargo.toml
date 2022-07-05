@@ -1,6 +1,6 @@
 [package]
 name = "cute-log"
-version = "2.0.7"
+version = "2.1.0"
 authors = ["Douman <douman@gmx.se>"]
 keywords = ["log"]
 description = "Simple and cute logger for log crate"
@@ -22,7 +22,7 @@ default-features = false
 androidy-log = "1"
 
 [target.'cfg(not(any(target_os = "android", target_arch = "wasm32")))'.dependencies.time]
-version = "0.2"
+version = "0.3.11"
 default-features = false
 features = ["std"]
 optional = true
@@ -33,4 +33,7 @@ web-log = "1"
 [features]
 default = ["timestamp"]
 timestamp = ["time"]
-module_limit_first_component = []
+std = []
+
+[package.metadata.docs.rs]
+features = ["std"]

@@ -3,6 +3,7 @@
 //!## Features
 //!
 //!- `timestamp` - Enables timestamps in logs by means of `chrono`. Enabled by default
+//!- `std` - Enables use of `std` feature to provide `RUST_LOG` handling.
 //!
 //!## Usage
 //!
@@ -26,7 +27,7 @@
 //!- Wasm - via web console API.
 //!- Any other platform with `std` available.
 
-#![cfg_attr(any(target_os = "android", target_arch = "wasm32", target_os = "unknown"), no_std)]
+#![no_std]
 
 pub extern crate log;
 
@@ -45,6 +46,37 @@ impl Logger {
     ///Creates new instance.
     pub const fn new() -> Self {
         Self
+    }
+
+    #[cfg(feature = "std")]
+    ///Sets `log` max level from `RUST_LOG` or if not available, use provided default level.
+    ///
+    ///Requires `std` feature
+    pub fn set_log_env_or(&self, default_level: log::LevelFilter) {
+        extern crate std;
+
+        fn parse_rust_log(log: &str, default_level: log::LevelFilter) -> log::LevelFilter {
+            if log.eq_ignore_ascii_case("off") {
+                log::LevelFilter::Off
+            } else if log.eq_ignore_ascii_case("error") {
+                log::LevelFilter::Error
+            } else if log.eq_ignore_ascii_case("warn") {
+                log::LevelFilter::Warn
+            } else if log.eq_ignore_ascii_case("info") {
+                log::LevelFilter::Info
+            } else if log.eq_ignore_ascii_case("debug") {
+                log::LevelFilter::Debug
+            } else if log.eq_ignore_ascii_case("trace") {
+                log::LevelFilter::Trace
+            } else {
+                default_level
+            }
+        }
+
+        match std::env::var("RUST_LOG") {
+            Ok(log) => self.set_max_level(parse_rust_log(&log, default_level)),
+            Err(_) => self.set_max_level(default_level),
+        }
     }
 
     #[inline]

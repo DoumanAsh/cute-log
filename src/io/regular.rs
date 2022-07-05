@@ -1,7 +1,9 @@
+extern crate std;
+
 #[cfg(feature="timestamp")]
 #[inline(always)]
 fn get_date() -> impl core::fmt::Display {
-    struct TimeDate(time::PrimitiveDateTime);
+    struct TimeDate(time::OffsetDateTime);
 
     impl core::fmt::Display for TimeDate {
         #[inline(always)]
@@ -17,7 +19,7 @@ impl crate::Logger {
     #[inline(always)]
     ///Prints to `stdout` as it is
     pub fn print_fmt(args: core::fmt::Arguments<'_>) {
-        println!("{}", args);
+        std::println!("{}", args);
     }
 
     #[inline]
@@ -25,7 +27,7 @@ impl crate::Logger {
     pub fn print(record: &log::Record) {
         #[cfg(feature="timestamp")]
         {
-            println!("{:<5} [{}] {{{}:{}}} - {}",
+            std::println!("{:<5} [{}] {{{}:{}}} - {}",
                      record.level(),
                      get_date(),
                      record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
@@ -35,7 +37,7 @@ impl crate::Logger {
 
         #[cfg(not(feature="timestamp"))]
         {
-            println!("{:<5} {{{}:{}}} - {}",
+            std::println!("{:<5} {{{}:{}}} - {}",
                      record.level(),
                      record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
                      record.args());
