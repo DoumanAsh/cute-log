@@ -1,5 +1,7 @@
 extern crate std;
 
+use std::io::Write;
+
 #[cfg(feature="timestamp")]
 #[inline(always)]
 fn get_date() -> impl core::fmt::Display {
@@ -19,28 +21,32 @@ impl crate::Logger {
     #[inline(always)]
     ///Prints to `stdout` as it is
     pub fn print_fmt(args: core::fmt::Arguments<'_>) {
-        std::println!("{}", args);
+        let stdout = std::io::stdout();
+        let mut stdout = stdout.lock();
+        let _ = stdout.write_fmt(format_args!("{}", args));
     }
 
     #[inline]
     ///Logger printer.
     pub fn print(record: &log::Record) {
-        #[cfg(feature="timestamp")]
-        {
-            std::println!("{:<5} [{}] {{{}:{}}} - {}",
-                     record.level(),
-                     get_date(),
-                     record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                     record.args());
+        let stdout = std::io::stdout();
+        let mut stdout = stdout.lock();
 
-        }
+        #[cfg(feature="timestamp")]
+        let _ = {
+            stdout.write_fmt(format_args!("{:<5} [{}] {{{}:{}}} - {}", record.level(),
+                                                                       get_date(),
+                                                                       record.file().unwrap_or("UNKNOWN"),
+                                                                       record.line().unwrap_or(0),
+                                                                       record.args()))
+        };
 
         #[cfg(not(feature="timestamp"))]
-        {
-            std::println!("{:<5} {{{}:{}}} - {}",
-                     record.level(),
-                     record.file().unwrap_or("UNKNOWN"), record.line().unwrap_or(0),
-                     record.args());
-        }
+        let _ = {
+            stdout.write_fmt(format_args!("{:<5} {{{}:{}}} - {}", record.level(),
+                                                                  record.file().unwrap_or("UNKNOWN"),
+                                                                  record.line().unwrap_or(0),
+                                                                  record.args()))
+        };
     }
 }
