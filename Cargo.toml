@@ -1,6 +1,6 @@
 [package]
 name = "cute-log"
-version = "2.1.3"
+version = "2.1.4"
 authors = ["Douman <douman@gmx.se>"]
 keywords = ["log"]
 description = "Simple and cute logger for log crate"
