@@ -3,6 +3,7 @@
 //!## Features
 //!
 //!- `timestamp` - Enables timestamps in logs by means of `chrono`. Enabled by default
+//!- `local_timestamp` - Enables `timestamp` and attempts to use local time. Implies `timestamp`.
 //!- `std` - Enables use of `std` feature to provide `RUST_LOG` handling.
 //!
 //!## Usage

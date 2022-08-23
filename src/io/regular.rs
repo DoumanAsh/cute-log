@@ -14,7 +14,14 @@ fn get_date() -> impl core::fmt::Display {
         }
     }
 
-    TimeDate(std::time::SystemTime::now().into())
+    #[cfg(feature = "local_timestamp")]
+    {
+        return TimeDate(time::OffsetDateTime::now_local().unwrap_or_else(|_| time::OffsetDateTime::now_utc()))
+    }
+    #[cfg(not(feature = "local_timestamp"))]
+    {
+        return TimeDate(std::time::SystemTime::now().into())
+    }
 }
 
 impl crate::Logger {

@@ -44,4 +44,4 @@ jobs:
       run: cargo check --no-default-features
 
     - name: Test
-      run: cargo test --features std,timestamp
+      run: cargo test --features std,timestamp,local_timestamp

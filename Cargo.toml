@@ -1,6 +1,6 @@
 [package]
 name = "cute-log"
-version = "2.1.4"
+version = "2.2.0"
 authors = ["Douman <douman@gmx.se>"]
 keywords = ["log"]
 description = "Simple and cute logger for log crate"
@@ -33,6 +33,7 @@ web-log = "1"
 [features]
 default = ["timestamp"]
 timestamp = ["time"]
+local_timestamp = ["timestamp", "time/local-offset"]
 std = []
 
 [package.metadata.docs.rs]
